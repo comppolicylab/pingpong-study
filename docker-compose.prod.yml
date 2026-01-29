@@ -1,0 +1,26 @@
+services:
+
+  study-web:
+    image: ${PINGPONG_WEB_REGISTRY}:${WEB_VERSION}
+    build:
+      args:
+        sentry_dsn: ${SENTRY_DSN}
+        node_env: production
+        origin: ${ORIGIN}
+
+  study-srv:
+    image: ${PINGPONG_SRV_REGISTRY}:${SRV_VERSION}
+
+  scripts:
+    image: ${PINGPONG_SCRIPTS_REGISTRY}:${SRV_VERSION}
+
+
+secrets:
+  app_config:
+    file: /opt/pingpong/config.prod.toml
+  webcrt:
+    file: /opt/pingpong/cert/aitutor.hks.harvard.edu.cer
+  webkey:
+    file: /opt/pingpong/cert/aitutor.hks.harvard.edu.key
+  traefikcrtcfg:
+    file: /opt/pingpong/traefik-crt.yml

@@ -1,0 +1,28 @@
+services:
+
+  study-web:
+    build:
+      args:
+        port: 3000
+        origin: https://pingpong.local
+        node_env: development
+
+  study-srv:
+    restart: no
+    command: ["fastapi", "run", "pingpong", "--host", "0.0.0.0", "--port", "8001", "--workers", "4"]
+    expose: [8001]
+    ports: ["8001:8001"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      replicas: 1
+
+  scripts:
+    restart: no
+    command: [ "sync_pingpong_with_airtable", "--host", "0.0.0.0", "--port", "8002" ]
+    deploy:
+      replicas: 1

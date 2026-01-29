@@ -1,0 +1,105 @@
+import logging
+from abc import abstractmethod
+
+from fastapi import HTTPException, Request
+from pingpong.schemas import SessionStatus
+
+logger = logging.getLogger(__name__)
+
+
+class Expression:
+    async def __call__(self, request: Request):
+        if (
+            not hasattr(request.state, "auth_user") or request.state.auth_user is None
+        ) and (
+            not hasattr(request.state, "is_anonymous") or not request.state.is_anonymous
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail=f"Missing valid session token: {request.state.session.status.value}",
+            )
+
+        if not await self.test_with_cache(request):
+            raise HTTPException(status_code=403, detail="Missing required role")
+
+    async def test_with_cache(self, request: Request) -> bool:
+        if not hasattr(request.state, "permissions"):
+            request.state.permissions = dict[str, bool]()
+
+        key = str(self)
+        if key not in request.state.permissions:
+            request.state.permissions[key] = await self.test(request)
+
+        return request.state.permissions[key]
+
+    @abstractmethod
+    async def test(self, request: Request) -> bool: ...
+
+    def __or__(self, other):
+        return Or(self, other)
+
+    def __and__(self, other):
+        return And(self, other)
+
+    def __invert__(self):
+        return Not(self)
+
+    def __ror__(self, other):
+        return Or(other, self)
+
+    def __rand__(self, other):
+        return And(other, self)
+
+    def __str__(self):
+        return f"{self.__class__.__name__}()"
+
+
+class StudyExpression(Expression):
+    async def __call__(self, request: Request):
+        if request.state.session.status != SessionStatus.VALID:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Missing valid session token: {request.state.session.status.value}",
+            )
+
+        if not await self.test_with_cache(request):
+            raise HTTPException(status_code=403, detail="Missing required role")
+
+
+class Or(Expression):
+    def __init__(self, *args: Expression):
+        self.args = args
+
+    async def test(self, request: Request) -> bool:
+        for arg in self.args:
+            if await arg.test(request):
+                return True
+        return False
+
+    def __str__(self):
+        return f"Or({', '.join(str(arg) for arg in self.args)})"
+
+
+class And(Expression):
+    def __init__(self, *args: Expression):
+        self.args = args
+
+    async def test(self, request: Request) -> bool:
+        for arg in self.args:
+            if not await arg.test(request):
+                return False
+        return True
+
+    def __str__(self):
+        return f"And({', '.join(str(arg) for arg in self.args)})"
+
+
+class Not(Expression):
+    def __init__(self, arg: Expression):
+        self.arg = arg
+
+    async def test(self, request: Request) -> bool:
+        return not await self.arg.test(request)
+
+    def __str__(self):
+        return f"Not({self.arg})"

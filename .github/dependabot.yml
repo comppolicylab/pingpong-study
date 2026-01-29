@@ -1,0 +1,46 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "deps(py)"
+      prefix-development: "deps(py-dev)"
+    cooldown:
+      default-days: 2
+      semver-major-days: 7
+      semver-minor-days: 3
+      semver-patch-days: 1
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps(gha)/"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: "npm"
+    directory: "web/study/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "deps(web)"
+      prefix-development: "deps(web-dev)"
+    cooldown:
+      default-days: 2
+      semver-major-days: 7
+      semver-minor-days: 3
+      semver-patch-days: 1
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"

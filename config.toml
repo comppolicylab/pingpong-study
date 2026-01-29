@@ -1,0 +1,61 @@
+# Python Development Server Configuration
+#
+# This file is checked into the repo and is used to configure the development
+# server, in addition to documenting common config options.
+#
+# Not every config option is listed here. For a full list of options, see the
+# `pingpong/config.py` file in the server code.
+
+# Server logging level. In production this should be higher to reduce noise.
+# The default is `INFO`.
+log_level = "DEBUG"
+
+# The URL where the study dashboard can be accessed. This is used to generate
+# absolute URLs in emails and other places.
+# In development, this is the UI dev server (`pnpm dev`). In production it
+# should be the public URL of the server, like `https://study.pingpong.app/`.
+study_public_url = "http://localhost:5174"
+
+# Whether the server is running in development mode. Should be `false` in prod.
+development = true
+
+[auth]
+# Secrets used to secure the app.
+
+[[auth.secret_keys]]
+# List of secret keys used to sign JWTs. The first key is used to sign new
+# tokens, and the rest are used to verify tokens that may be old. When
+# rotating keys, add the new key to the top of the list and remove the oldest
+# key from the bottom after a reasonable amount of time has passed to let the
+# old tokens expire.
+key = "not actually a secret!"
+
+
+[email]
+# Email configuration. This is used to send emails from the server, for login
+# via magic link and for app invite notifications.
+#
+# In development the `mock` server prints emails to the console.
+# In production we generally will use `smtp`. See the `pingpong/config.py`
+# file for more details about backends.
+type = "mock"
+
+[study]
+# Settings for the study dashboard.
+#
+# Airtable API key for reading instructor data.
+airtable_api_key = "your api key here"
+# Airtable base ID for the study dashboard.
+airtable_base_id = "your base id here"
+# Airtable class table ID for the study dashboard.
+airtable_class_table_id = "your class table id here"
+# Airtable instructor table ID for the study dashboard.
+airtable_instructor_table_id = "your instructor table id here"
+# Airtable admin table ID for the study dashboard.
+airtable_admin_table_id = "your admin table id here"
+# Airtable pre-assessment submission table ID for the study dashboard.
+airtable_preassessment_submission_table_id = "your preassessment submission table id here"
+# Airtable post-assessment submission table ID for the study dashboard.
+airtable_postassessment_submission_table_id = "your postassessment submission table id here"
+# Airtable user-class association table ID for the study dashboard.
+airtable_user_class_association_table_id = "your user-class association table id here"
