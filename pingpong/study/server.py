@@ -420,7 +420,7 @@ def process_course(course: Course) -> schemas.StudyCourse:
         if course_status == "accepted"
         else None,
         postassessment_url=course.postassessment_url
-        if course_status == "accepted"
+        if course_status == "accepted" and course.postassessment_status == "Sent"
         else None,
         pingpong_group_url=course.pingpong_group_url
         if course_status == "accepted"
