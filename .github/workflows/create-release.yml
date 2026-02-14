@@ -446,7 +446,6 @@ jobs:
           if heading_index != -1:
             after_heading = body[heading_index + len(what_changed_heading):].lstrip()
             related_prs_section = after_heading if after_heading else "- None"
-            break
 
           template = textwrap.dedent("""\
           # Release Notes
