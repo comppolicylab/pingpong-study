@@ -34,10 +34,6 @@ jobs:
             BUILD_NUMBER="${BASH_REMATCH[1]}"
             SRV_VERSION="${BASH_REMATCH[2]}"
             WEB_VERSION="${BASH_REMATCH[3]}"
-
-            # Set GitHub environment variables
-            echo "SRV_VERSION=v${SRV_VERSION}" >> $GITHUB_ENV
-            echo "WEB_VERSION=v${WEB_VERSION}" >> $GITHUB_ENV
           else
             echo "Error: Invalid tag format. Expected NNNN-srvNNN-webNNN or vNNNN+srvNNN.webNNN"
             exit 1
