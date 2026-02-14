@@ -157,7 +157,7 @@ jobs:
           def is_version_only_change(file_path, compare_range):
               patterns = {
                   'pyproject.toml': re.compile(r'^version\s*=\s*".*"$'),
-                  'web/pingpong/package.json': re.compile(r'^"version"\s*:\s*".*"\s*,?$'),
+                  'web/study/package.json': re.compile(r'^"version"\s*:\s*".*"\s*,?$'),
               }
               pattern = patterns.get(file_path)
               if not pattern:
@@ -178,9 +178,9 @@ jobs:
                   if file.startswith(('pingpong/', 'saml/', 'alembic/')) or file in ['poetry.lock', 'pyproject.toml']
               ]
 
-              web_update = any(file != 'web/pingpong/package.json' for file in web_files)
-              if not web_update and 'web/pingpong/package.json' in web_files:
-                  web_update = not is_version_only_change('web/pingpong/package.json', compare_range)
+              web_update = any(file != 'web/study/package.json' for file in web_files)
+              if not web_update and 'web/study/package.json' in web_files:
+                  web_update = not is_version_only_change('web/study/package.json', compare_range)
 
               server_update = any(file != 'pyproject.toml' for file in server_files)
               if not server_update and 'pyproject.toml' in server_files:
