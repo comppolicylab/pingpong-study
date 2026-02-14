@@ -1,9 +1,14 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import * as Carousel from '$lib/components/ui/carousel/index.js';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+
+	const hasApplicationSource = page.url.searchParams.get('source') === 'application';
+	let showApplicationReferralDialog = $state(hasApplicationSource);
 
 	const slides = [
 		{
@@ -128,6 +133,31 @@
 			</Button>
 		</header>
 
+		{#if hasApplicationSource}
+			<AlertDialog.Root bind:open={showApplicationReferralDialog}>
+				<AlertDialog.Content>
+					<AlertDialog.Header>
+						<AlertDialog.Title>Applications are now closed for Spring 2026</AlertDialog.Title>
+						<AlertDialog.Description class="text-base font-light text-foreground">
+							Thank you for your interest in the PingPong College Study. To inquire about future
+							participation, please contact
+							<a
+								href="mailto:support@pingpong-hks.atlassian.net"
+								rel="noopener noreferrer"
+								class="font-medium text-foreground underline underline-offset-4"
+								target="_blank"
+							>
+								support@pingpong-hks.atlassian.net
+							</a>.
+						</AlertDialog.Description>
+					</AlertDialog.Header>
+					<AlertDialog.Footer>
+						<AlertDialog.Cancel>Close</AlertDialog.Cancel>
+					</AlertDialog.Footer>
+				</AlertDialog.Content>
+			</AlertDialog.Root>
+		{/if}
+
 		<Card.Root class="border-white/10 bg-white/95 px-4 py-0 shadow-xl">
 			<Card.Content class="space-y-10 p-6 md:p-10">
 				<section class="space-y-6">
@@ -159,24 +189,22 @@
 							along with the opportunity to earn bonuses for referring other eligible instructors.
 						</p>
 						<p>
-							We are now considering applications for Spring 2026 courses. <strong>
-								To participate, complete the application linked below to confirm your eligibility.
-							</strong>
-							Our team will be in touch on a rolling basis to confirm participation for the Spring 2026
-							semester.
+							<strong> Applications are now closed for Spring 2026 courses. </strong>
+							To inquire about future participation, please contact
+							<a
+								href="mailto:support@pingpong-hks.atlassian.net"
+								rel="noopener noreferrer"
+								class="font-medium text-foreground underline underline-offset-4"
+								target="_blank"
+							>
+								support@pingpong-hks.atlassian.net
+							</a>.
 						</p>
 					</div>
 					<div class="flex flex-wrap items-center gap-3">
 						<Button
-							href="https://pingpong.hks.harvard.edu/application"
-							class="bg-[oklch(0.2607_0.071_282.61)] p-4 text-base text-white hover:bg-[oklch(0.225_0.08_282.61)]"
-						>
-							Confirm your eligibility to participate
-						</Button>
-						<Button
 							href="/login"
-							variant="outline"
-							class="border-slate-300 bg-white p-4 text-base text-slate-900"
+							class="bg-[oklch(0.2607_0.071_282.61)] p-4 text-base text-white select-none hover:bg-[oklch(0.225_0.08_282.61)]"
 						>
 							Instructor login
 						</Button>
@@ -265,17 +293,8 @@
 								<Card.Title class="text-lg">How can I participate?</Card.Title>
 							</Card.Header>
 							<Card.Content class="text-base font-light text-secondary-foreground">
-								Complete
-								<a
-									href="https://pingpong.hks.harvard.edu/application"
-									rel="noopener noreferrer"
-									class="font-medium text-foreground underline underline-offset-4"
-									target="_blank"
-								>
-									this short (15-minute) survey
-								</a>
-								to confirm your eligibility. Our team will be in touch on a rolling basis to confirm participation
-								for the Spring 2026 semester. For further questions, please contact
+								Applications are now closed for Spring 2026 courses. To inquire about future
+								participation, please contact
 								<a
 									href="mailto:support@pingpong-hks.atlassian.net"
 									rel="noopener noreferrer"
