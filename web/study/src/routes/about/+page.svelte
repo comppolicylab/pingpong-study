@@ -128,9 +128,11 @@
 	<title>Educational Access | PingPong Study</title>
 </svelte:head>
 
-<div class="min-h-svh bg-[#1f1c3f]">
+<div
+	class="min-h-svh bg-gradient-to-b from-[#2e2a66] via-[#1f1c3f] to-[#151332] dark:from-[#171822] dark:via-[#12131c] dark:to-[#0f1017]"
+>
 	<div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-10 lg:px-10">
-		<header class="flex items-center justify-between text-white">
+		<header class="flex items-center justify-between text-white dark:text-foreground">
 			<div class="flex items-center">
 				<img src="/pingpong_logo_2x.png" alt="PingPong logo" class="h-14 w-auto" />
 			</div>
@@ -141,10 +143,14 @@
 
 		{#if hasApplicationSource}
 			<AlertDialog.Root bind:open={showApplicationReferralDialog}>
-				<AlertDialog.Content>
+				<AlertDialog.Content
+					class="dark:border-white/15 dark:bg-card dark:shadow-2xl dark:shadow-black/70"
+				>
 					<AlertDialog.Header>
-						<AlertDialog.Title>Applications are now closed for Spring 2026</AlertDialog.Title>
-						<AlertDialog.Description class="text-base font-light text-foreground">
+						<AlertDialog.Title>Applications are closed for Spring 2026</AlertDialog.Title>
+						<AlertDialog.Description
+							class="text-base font-light text-foreground dark:font-normal dark:text-foreground/95"
+						>
 							Thank you for your interest in the PingPong College Study. To inquire about future
 							participation, please contact
 							<a
@@ -164,21 +170,23 @@
 			</AlertDialog.Root>
 		{/if}
 
-		<Card.Root class="border-white/10 bg-white/95 px-4 py-0 shadow-xl">
+		<Card.Root
+			class="border-border/60 bg-card/95 px-4 py-0 shadow-2xl shadow-black/20 backdrop-blur-sm dark:border-white/10 dark:bg-secondary/55 dark:shadow-black/50"
+		>
 			<Card.Content class="space-y-10 p-6 md:p-10">
 				<section class="space-y-6">
 					<div class="space-y-4">
 						<h1
-							class="bg-gradient-to-t from-[#201E45] to-[#545193] bg-clip-text text-4xl leading-tight font-bold text-balance text-transparent md:text-5xl lg:text-6xl"
+							class="bg-gradient-to-t from-[#201E45] to-[#545193] bg-clip-text text-4xl leading-tight font-bold text-balance text-transparent md:text-5xl lg:text-6xl dark:from-foreground dark:to-muted-foreground"
 						>
 							Educational Access
 						</h1>
-						<p class="text-lg text-gray-700 md:text-xl lg:w-4/5 lg:text-2xl">
+						<p class="text-lg text-muted-foreground md:text-xl lg:w-4/5 lg:text-2xl">
 							Participate in a study evaluating the impact of AI on student learning at two- and
 							four-year colleges.
 						</p>
 					</div>
-					<div class="space-y-4 text-base text-gray-900">
+					<div class="space-y-4 text-base text-foreground">
 						<p>
 							<strong>PingPong</strong> is an AI-powered virtual teaching assistant based on ChatGPT,
 							developed by students and teachers at Harvard. PingPong is designed to help students with
@@ -210,7 +218,7 @@
 					<div class="flex flex-wrap items-center gap-3">
 						<Button
 							href="/login"
-							class="bg-[oklch(0.2607_0.071_282.61)] p-4 text-base text-white select-none hover:bg-[oklch(0.225_0.08_282.61)]"
+							class="bg-pingpong-blue p-4 text-base text-white select-none hover:bg-pingpong-blue/90 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
 						>
 							Instructor login
 						</Button>
@@ -230,12 +238,14 @@
 						<Carousel.Content>
 							{#each slides as slide (slide.title)}
 								<Carousel.Item class="md:basis-1/1">
-									<Card.Root class="border-muted/60 p-0">
+									<Card.Root
+										class="border-muted/60 bg-card/95 p-0 shadow-md shadow-black/10 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg dark:border-white/10 dark:bg-secondary/60 dark:shadow-black/35"
+									>
 										<Card.Content class="p-0">
 											<img
 												src={slide.src}
 												alt={slide.alt}
-												class="w-full rounded-md bg-slate-50 object-contain"
+												class="w-full rounded-md bg-muted object-contain"
 												loading="lazy"
 											/>
 											<div class="space-y-2 p-6">
@@ -247,8 +257,12 @@
 								</Carousel.Item>
 							{/each}
 						</Carousel.Content>
-						<Carousel.Previous class="start-4 size-12" />
-						<Carousel.Next class="end-4 size-12" />
+						<Carousel.Previous
+							class="start-4 size-12 border-border/80 bg-background/95 text-foreground shadow-lg shadow-black/15 backdrop-blur-sm hover:bg-accent dark:border-border dark:bg-card/95 dark:text-foreground dark:shadow-black/45 dark:hover:bg-accent/80"
+						/>
+						<Carousel.Next
+							class="end-4 size-12 border-border/80 bg-background/95 text-foreground shadow-lg shadow-black/15 backdrop-blur-sm hover:bg-accent dark:border-border dark:bg-card/95 dark:text-foreground dark:shadow-black/45 dark:hover:bg-accent/80"
+						/>
 					</Carousel.Root>
 				</section>
 
@@ -258,7 +272,9 @@
 					<h2 class="text-2xl font-semibold">Quick facts about PingPong Educational Access</h2>
 					<div class="grid gap-4 md:grid-cols-2">
 						{#each quickFacts as fact (fact.title)}
-							<Card.Root class="gap-2 border-muted/60">
+							<Card.Root
+								class="gap-2 border-muted/60 bg-card/95 shadow-sm shadow-black/10 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-secondary/60 dark:shadow-black/30"
+							>
 								<Card.Header>
 									<Card.Title class="text-lg">{fact.title}</Card.Title>
 								</Card.Header>
@@ -274,7 +290,9 @@
 							</Card.Root>
 						{/each}
 
-						<Card.Root class="gap-2 border-muted/60">
+						<Card.Root
+							class="gap-2 border-muted/60 bg-card/95 shadow-sm shadow-black/10 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-secondary/60 dark:shadow-black/30"
+						>
 							<Card.Header>
 								<Card.Title class="text-lg">Who is developing PingPong?</Card.Title>
 							</Card.Header>
@@ -294,7 +312,9 @@
 							</Card.Content>
 						</Card.Root>
 
-						<Card.Root class="gap-2 border-muted/60 md:col-span-2">
+						<Card.Root
+							class="gap-2 border-muted/60 bg-card/95 shadow-sm shadow-black/10 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md md:col-span-2 dark:border-white/10 dark:bg-secondary/60 dark:shadow-black/30"
+						>
 							<Card.Header>
 								<Card.Title class="text-lg">How can I participate?</Card.Title>
 							</Card.Header>
@@ -321,7 +341,9 @@
 						<h2 class="text-2xl font-semibold">FAQ for instructors</h2>
 						<p class="text-secondary-foreground">Answers to common questions about the study.</p>
 					</div>
-					<Card.Root class="border-muted/60 py-2">
+					<Card.Root
+						class="border-muted/60 bg-card/95 py-2 shadow-md shadow-black/10 dark:border-white/10 dark:bg-secondary/60 dark:shadow-black/30"
+					>
 						<Card.Content>
 							<Accordion.Root type="single" class="w-full">
 								{#each faqs as faq (faq.value)}
