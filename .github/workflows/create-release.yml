@@ -441,7 +441,7 @@ jobs:
           body = (generated.get("body") or "").strip()
 
           related_prs_section = body if body else "- None"
-          for heading in ("## What's Changed", "## Waht Changed"):
+          for heading in ("## What's Changed"):
             heading_index = body.find(heading)
             if heading_index != -1:
               after_heading = body[heading_index + len(heading):].lstrip()
