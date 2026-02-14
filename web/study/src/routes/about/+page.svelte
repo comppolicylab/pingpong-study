@@ -7,8 +7,14 @@
 	import * as Carousel from '$lib/components/ui/carousel/index.js';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 
-	const hasApplicationSource = page.url.searchParams.get('source') === 'application';
-	let showApplicationReferralDialog = $state(hasApplicationSource);
+	const hasApplicationSource = $derived(page.url.searchParams.get('source') === 'application');
+	let showApplicationReferralDialog = $state(false);
+
+	$effect(() => {
+		if (hasApplicationSource) {
+			showApplicationReferralDialog = true;
+		}
+	});
 
 	const slides = [
 		{
