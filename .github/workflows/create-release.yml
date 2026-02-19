@@ -498,6 +498,7 @@ jobs:
             gh release edit "${EXISTING_DRAFT_TAG}" \
               --title "${RELEASE_NAME}" \
               --draft \
+              --latest=false \
               --notes-file "${NOTES_PATH}" \
               --tag "${RESOLVED_TAG}" \
               --target "${TARGET_SHA}"
@@ -506,5 +507,6 @@ jobs:
             gh release create "${RESOLVED_TAG}" \
               --title "${RELEASE_NAME}" \
               --draft \
+              --latest=false \
               --notes-file "${NOTES_PATH}"
           fi
