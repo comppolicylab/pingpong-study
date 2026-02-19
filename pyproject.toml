@@ -9,11 +9,11 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.11"
 pydantic = "^2.12.5"
-pydantic-settings = "^2.12.0"
-sentry-sdk = "^2.52.0"
+pydantic-settings = "^2.13.0"
+sentry-sdk = "^2.53.0"
 opentelemetry-api = "^1.20.0"
 requests = "^2.32.5"
-fastapi = {extras = ["standard"], version = "^0.128.8"}
+fastapi = {extras = ["standard"], version = "^0.129.0"}
 uvicorn = "^0.40.0"
 aiohttp = "^3.13.3"
 pyjwt = "^2.11.0"
