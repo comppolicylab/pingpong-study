@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pingpong-study"
-version = "6.6.0"
+version = "6.6.1"
 description = "An app to support the PingPong College RCT study."
 authors = ["Evangelos Kassos <github@evangeloskassos.com>"]
 readme = "README.md"
