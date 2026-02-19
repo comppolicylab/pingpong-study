@@ -57,7 +57,6 @@ export const load: LayoutLoad = async ({ fetch, url }) => {
 		// Redirect unauthenticated users from root to about page
 		throw redirect(302, ABOUT);
 	} else if (!authed && !isPublicRoute && url.pathname !== LOGOUT) {
-		showSidebar = false;
 		throw redirect(302, `${LOGIN}?forward=${encodeURIComponent(url.pathname)}`);
 	}
 
