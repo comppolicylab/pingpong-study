@@ -5,6 +5,8 @@ RUN npm install -g pnpm@10
 
 WORKDIR /app/study
 COPY study/package.json study/pnpm-lock.yaml ./
+COPY study/patches ./patches
+
 RUN pnpm install --frozen-lockfile
 
 COPY study/src ./src
