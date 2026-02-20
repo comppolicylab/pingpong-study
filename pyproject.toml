@@ -1,6 +1,6 @@
 [project]
 name = "pingpong-study"
-version = "6.6.2"
+version = "6.7.0"
 description = "An app to support the PingPong College RCT study."
 readme = "README.md"
 requires-python = ">= 3.11, <4.0.0"
