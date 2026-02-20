@@ -60,13 +60,6 @@
 			</div>
 		</Sidebar.Inset>
 	</Sidebar.Provider>
-	<script
-		data-jsd-embedded
-		data-key="66f55cfb-f3b4-44aa-a910-3f49aaedce06"
-		data-base-url="https://jsd-widget.atlassian.com"
-		src="https://jsd-widget.atlassian.com/assets/embed.js"
-	></script>
-	<script src="https://pingpong-hks.statuspage.io/embed/script.js"></script>
 {:else}
 	{@render children?.()}
 {/if}
