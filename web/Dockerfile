@@ -1,7 +1,7 @@
 ########## Build study ##########
 FROM node:22-alpine AS build_study
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10
 
 WORKDIR /app/study
 COPY study/package.json study/pnpm-lock.yaml ./
