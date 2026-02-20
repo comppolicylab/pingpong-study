@@ -3,7 +3,7 @@ name = "pingpong-study"
 version = "6.6.2"
 description = "An app to support the PingPong College RCT study."
 readme = "README.md"
-requires-python = ">= 3.10, <4.0.0"
+requires-python = ">= 3.11, <4.0.0"
 authors = [
     { name = "Evangelos Kassos", email = "github@evangeloskassos.com" }
 ]
