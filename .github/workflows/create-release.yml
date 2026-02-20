@@ -311,7 +311,7 @@ jobs:
           uv_lock = Path("uv.lock")
           lock_content = uv_lock.read_text(encoding="utf-8")
           lock_updated, lock_count = re.subn(
-              r'(\[\[package\]\]\s+name = "pingpong"\s+version = ")[^"]+(")',
+              r'(\[\[package\]\]\s+name = "pingpong-study"\s+version = ")[^"]+(")',
               rf'\g<1>{version}\2',
               lock_content,
               count=1,
@@ -327,7 +327,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet -- pyproject.toml web/pingpong/package.json uv.lock; then
+          if git diff --quiet -- pyproject.toml web/study/package.json uv.lock; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No version file changes detected."
           else
