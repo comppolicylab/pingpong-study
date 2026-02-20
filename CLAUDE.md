@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PingPong is an dashboard for a research study with:
+PingPong is an app to support the PingPong College RCT study with:
 - Backend: FastAPI (Python 3.11+), async SQLAlchemy, Pydantic v2, PyAirtable
 - Frontend: SvelteKit with TypeScript
   - `web/study` (Svelte 5, Tailwind v4, bits-ui)
