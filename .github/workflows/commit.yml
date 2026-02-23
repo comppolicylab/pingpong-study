@@ -165,7 +165,7 @@ jobs:
                   return False
 
               def uv_lock_has_pingpong_context():
-                  package_name_pattern = re.compile(r'^name\s*=\s*"pingpong"\s*$')
+                  package_name_pattern = re.compile(r'^name\s*=\s*"pingpong-study"\s*$')
                   try:
                       patch = subprocess.check_output(
                           ['git', 'diff', '--unified=1', compare_range, '--', 'uv.lock'],
