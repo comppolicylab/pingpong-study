@@ -39,3 +39,6 @@ local-scripts-qualtrics = [
 
 [tool.deptry]
 known_first_party = ["pingpong"]
+
+[tool.uv]
+override-dependencies = ["pygments >= 2.20.0, < 3.0.0"]
