@@ -198,3 +198,8 @@ saml/**/*.crt
 
 # Local artifact store
 /local_exports/
+
+# CodeQL
+.codeql/
+
+!.greptile/config.json
