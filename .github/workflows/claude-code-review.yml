@@ -77,14 +77,18 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Checkout pinned Claude plugin marketplace
+      - name: Checkout pinned Claude plugins source
         uses: actions/checkout@v6
         with:
           repository: anthropics/claude-code
-          # Pin marketplace source to an immutable commit to avoid untrusted upstream drift.
+          # Pin plugin source to an immutable commit to avoid untrusted upstream drift.
           ref: 2dc1e697836e94f3e9b7b8f19e6fb4a3622e3cca
-          path: .claude-marketplaces/claude-code
+          path: claude-plugins-src
           fetch-depth: 1
+
+      - name: Verify pinned code-review plugin source
+        run: |
+          test -f "${GITHUB_WORKSPACE}/claude-plugins-src/plugins/code-review/.claude-plugin/plugin.json"
 
       - name: Run Claude Code Review
         id: claude-review
@@ -102,8 +106,7 @@ jobs:
                 contains(fromJson('["opened","edited","labeled","assigned"]'), github.event.action)
               )
             }}
-          plugin_marketplaces: './.claude-marketplaces/claude-code'
-          plugins: 'code-review@claude-code-plugins'
+          plugins: '${{ github.workspace }}/claude-plugins-src/plugins/code-review'
           prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ env.PR_NUMBER }}'
 
           # Tools based on CLAUDE.md development commands
