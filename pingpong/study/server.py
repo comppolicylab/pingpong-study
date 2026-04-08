@@ -8,6 +8,7 @@ from pingpong.auth import (
     decode_auth_token,
     decode_session_token,
     generate_auth_link,
+    normalize_study_redirect,
     redirect_with_session_study,
 )
 from pingpong.permission import StudyExpression
@@ -161,11 +162,12 @@ async def login_magic(body: schemas.MagicLoginRequest, request: Request):
         )
 
     nowfn = get_now_fn(request)
+    safe_forward = normalize_study_redirect(body.forward)
     magic_link = generate_auth_link(
         instructor.record_id,
         expiry=86_400,
         nowfn=nowfn,
-        redirect=body.forward,
+        redirect=safe_forward,
         is_study=True,
     )
 
@@ -204,11 +206,12 @@ async def login_as(body: schemas.LoginAsRequest, request: Request):
         raise HTTPException(status_code=404, detail="Instructor not found.")
 
     nowfn = get_now_fn(request)
+    safe_forward = normalize_study_redirect(body.forward)
     magic_link = generate_auth_link(
         f"{instructor.record_id}:{admin.record_id}",
         expiry=3_600,
         nowfn=nowfn,
-        redirect=body.forward,
+        redirect=safe_forward,
         is_study=True,
         is_study_admin=True,
     )
@@ -254,7 +257,7 @@ async def auth(request: Request):
     Returns:
         RedirectResponse: Redirect either to the SSO login endpoint or to the destination.
     """
-    dest = request.query_params.get("redirect", "/")
+    dest = normalize_study_redirect(request.query_params.get("redirect", "/"))
     stok = request.query_params.get("token")
     nowfn = get_now_fn(request)
     try:
@@ -263,7 +266,7 @@ async def auth(request: Request):
         raise HTTPException(status_code=401, detail=str(e))
     except TimeException as e:
         instructor = await get_instructor(e.user_id)
-        forward = request.query_params.get("redirect", "/")
+        forward = normalize_study_redirect(request.query_params.get("redirect", "/"))
         if instructor and instructor.academic_email:
             try:
                 await login_magic(
@@ -317,7 +320,7 @@ async def auth_admin(request: Request):
     Returns:
         RedirectResponse: Redirect either to the SSO login endpoint or to the destination.
     """
-    dest = request.query_params.get("redirect", "/")
+    dest = normalize_study_redirect(request.query_params.get("redirect", "/"))
     stok = request.query_params.get("token")
     nowfn = get_now_fn(request)
     try:
@@ -329,7 +332,7 @@ async def auth_admin(request: Request):
         instructor_id, admin_id = e.user_id.split(":")
         instructor = await get_instructor(instructor_id)
         admin = await get_admin_by_id(admin_id)
-        forward = request.query_params.get("redirect", "/")
+        forward = normalize_study_redirect(request.query_params.get("redirect", "/"))
         if instructor and instructor.academic_email and admin and admin.email:
             try:
                 await login_as(
