@@ -162,12 +162,11 @@ async def login_magic(body: schemas.MagicLoginRequest, request: Request):
         )
 
     nowfn = get_now_fn(request)
-    safe_forward = normalize_study_redirect(body.forward)
     magic_link = generate_auth_link(
         instructor.record_id,
         expiry=86_400,
         nowfn=nowfn,
-        redirect=safe_forward,
+        redirect=body.forward,
         is_study=True,
     )
 
@@ -206,12 +205,11 @@ async def login_as(body: schemas.LoginAsRequest, request: Request):
         raise HTTPException(status_code=404, detail="Instructor not found.")
 
     nowfn = get_now_fn(request)
-    safe_forward = normalize_study_redirect(body.forward)
     magic_link = generate_auth_link(
         f"{instructor.record_id}:{admin.record_id}",
         expiry=3_600,
         nowfn=nowfn,
-        redirect=safe_forward,
+        redirect=body.forward,
         is_study=True,
         is_study_admin=True,
     )
