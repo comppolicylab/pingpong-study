@@ -1,6 +1,7 @@
 from fastapi import Depends, FastAPI, HTTPException, Request
 from typing import Literal
 from fastapi.responses import RedirectResponse
+from urllib.parse import urlencode
 from jwt import PyJWTError
 import jwt
 from pingpong.auth import (
@@ -256,6 +257,7 @@ async def auth(request: Request):
         RedirectResponse: Redirect either to the SSO login endpoint or to the destination.
     """
     dest = normalize_study_redirect(request.query_params.get("redirect", "/"))
+    forward = dest
     stok = request.query_params.get("token")
     nowfn = get_now_fn(request)
     try:
@@ -264,7 +266,6 @@ async def auth(request: Request):
         raise HTTPException(status_code=401, detail=str(e))
     except TimeException as e:
         instructor = await get_instructor(e.user_id)
-        forward = normalize_study_redirect(request.query_params.get("redirect", "/"))
         if instructor and instructor.academic_email:
             try:
                 await login_magic(
@@ -281,11 +282,13 @@ async def auth(request: Request):
                     return RedirectResponse(e.detail, status_code=303)
                 else:
                     return RedirectResponse(
-                        f"/login?expired=true&forward={forward}", status_code=303
+                        f"/login?expired=true&{urlencode({'forward': forward})}",
+                        status_code=303,
                     )
             return RedirectResponse("/login?new_link=true", status_code=303)
         return RedirectResponse(
-            f"/login?expired=true&forward={forward}", status_code=303
+            f"/login?expired=true&{urlencode({'forward': forward})}",
+            status_code=303,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -319,6 +322,7 @@ async def auth_admin(request: Request):
         RedirectResponse: Redirect either to the SSO login endpoint or to the destination.
     """
     dest = normalize_study_redirect(request.query_params.get("redirect", "/"))
+    forward = dest
     stok = request.query_params.get("token")
     nowfn = get_now_fn(request)
     try:
@@ -330,7 +334,6 @@ async def auth_admin(request: Request):
         instructor_id, admin_id = e.user_id.split(":")
         instructor = await get_instructor(instructor_id)
         admin = await get_admin_by_id(admin_id)
-        forward = normalize_study_redirect(request.query_params.get("redirect", "/"))
         if instructor and instructor.academic_email and admin and admin.email:
             try:
                 await login_as(
@@ -349,11 +352,13 @@ async def auth_admin(request: Request):
                     return RedirectResponse(e.detail, status_code=303)
                 else:
                     return RedirectResponse(
-                        f"/login?expired=true&forward={forward}", status_code=303
+                        f"/login?expired=true&{urlencode({'forward': forward})}",
+                        status_code=303,
                     )
             return RedirectResponse("/login?new_link=true", status_code=303)
         return RedirectResponse(
-            f"/login?expired=true&forward={forward}", status_code=303
+            f"/login?expired=true&{urlencode({'forward': forward})}",
+            status_code=303,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
