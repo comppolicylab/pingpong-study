@@ -1,5 +1,6 @@
 from datetime import timedelta
 from typing import cast
+from urllib.parse import urlencode, urlsplit
 
 from fastapi.responses import RedirectResponse
 import jwt
@@ -69,6 +70,26 @@ class TimeException(Exception):
     def __init__(self, detail: str = "", user_id: str = ""):
         self.user_id = user_id
         self.detail = detail
+
+
+def normalize_study_redirect(destination: str | None) -> str:
+    """Normalize redirect destinations to in-app study paths only."""
+    if not destination:
+        return "/"
+
+    redirect = destination.strip()
+    if not redirect.startswith("/"):
+        return "/"
+    if redirect.startswith("//") or redirect.startswith("/\\"):
+        return "/"
+    if any(ord(char) < 32 for char in redirect):
+        return "/"
+
+    parts = urlsplit(redirect)
+    if parts.scheme or parts.netloc:
+        return "/"
+
+    return redirect
 
 
 def decode_auth_token(token: str, nowfn: NowFn = utcnow) -> AuthToken:
@@ -141,13 +162,13 @@ def generate_auth_link(
         str: Auth Link
     """
     tok = encode_auth_token(str(user_id), expiry=expiry, nowfn=nowfn)
+    safe_redirect = normalize_study_redirect(redirect)
+    params = urlencode({"token": tok, "redirect": safe_redirect})
     if is_study:
         if is_study_admin:
-            return config.study_url(
-                f"/api/study/auth/admin?token={tok}&redirect={redirect}"
-            )
+            return config.study_url(f"/api/study/auth/admin?{params}")
         else:
-            return config.study_url(f"/api/study/auth?token={tok}&redirect={redirect}")
+            return config.study_url(f"/api/study/auth?{params}")
     raise ValueError("is_study must be True for study auth links")
 
 
@@ -155,9 +176,10 @@ def redirect_with_session_study(
     destination: str, user_id: str, expiry: int = 86_400 * 30, nowfn: NowFn = utcnow
 ):
     """Redirect to the destination with a session token."""
+    safe_destination = normalize_study_redirect(destination)
     session_token = encode_auth_token(user_id, expiry=expiry, nowfn=nowfn)
     response = RedirectResponse(
-        config.study_url(destination) if destination.startswith("/") else destination,
+        config.study_url(safe_destination),
         status_code=303,
     )
     response.set_cookie(
