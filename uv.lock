@@ -1133,7 +1133,7 @@ wheels = [
 
 [[package]]
 name = "pingpong-study"
-version = "6.10.1"
+version = "6.10.2"
 source = { virtual = "." }
 dependencies = [
     { name = "aiohttp" },
