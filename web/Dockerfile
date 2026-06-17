@@ -14,7 +14,7 @@ COPY study/components.json study/eslint.config.js study/svelte.config.js study/t
 RUN pnpm build
 
 ########## Final Nginx image ##########
-FROM nginx:1.27.0
+FROM nginx:1.31.1
 
 RUN apt-get update && apt-get install ca-certificates -y && update-ca-certificates
 
