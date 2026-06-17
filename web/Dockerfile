@@ -1,5 +1,5 @@
 ########## Build study ##########
-FROM node:22-alpine AS build_study
+FROM node:22.22.3-alpine3.24 AS build_study
 
 RUN npm install -g pnpm@10
 
@@ -13,7 +13,7 @@ COPY study/static ./static
 COPY study/components.json study/eslint.config.js study/svelte.config.js study/tsconfig.json study/vite.config.ts ./
 RUN pnpm build
 
-########## Final Nginx image with both sites ##########
+########## Final Nginx image ##########
 FROM nginx:1.27.0
 
 RUN apt-get update && apt-get install ca-certificates -y && update-ca-certificates
