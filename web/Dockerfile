@@ -1,5 +1,5 @@
 ########## Build study ##########
-FROM node:22.22.3-alpine3.24 AS build_study
+FROM node:22.23.0-alpine3.24 AS build_study
 
 RUN npm install -g pnpm@10
 
@@ -14,7 +14,7 @@ COPY study/components.json study/eslint.config.js study/svelte.config.js study/t
 RUN pnpm build
 
 ########## Final Nginx image ##########
-FROM nginx:1.31.1
+FROM nginx:1.31.2
 
 RUN apt-get update && apt-get install ca-certificates -y && update-ca-certificates
 
