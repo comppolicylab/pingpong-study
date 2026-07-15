@@ -20,6 +20,12 @@ server {
     # Index / fallback page
     index index.html;
 
+    # Preserve inbound links without serving duplicate landing-page content.
+    location = /about {
+        absolute_redirect off;
+        return 308 /$is_args$args;
+    }
+
     location / {
         # Serve real files first, then fallback to index.
         try_files $uri $uri/ $uri.html /index.html;

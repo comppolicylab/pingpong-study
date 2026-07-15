@@ -89,7 +89,7 @@
 			value: 'irb',
 			question: 'Has this study received Institutional Review Board (IRB) approval?',
 			answer:
-				'Yes, the study has been reviewed and received an exempt determination from the Harvard University-Area IRB. If you need a copy of the approval letter or additional documentation, please contact us directly at support@pingpong-hks.atlassian.net.'
+				'Yes, the study has been reviewed and received an exempt determination from the Harvard University-Area IRB. If you need a copy of the approval letter or additional documentation, please contact us directly at pingpongedu@hks.harvard.edu.'
 		},
 		{
 			value: 'requirements',
@@ -148,19 +148,19 @@
 					class="dark:border-white/15 dark:bg-card dark:shadow-2xl dark:shadow-black/70"
 				>
 					<AlertDialog.Header>
-						<AlertDialog.Title>Applications are closed for Spring 2026</AlertDialog.Title>
+						<AlertDialog.Title>The PingPong College Study has concluded</AlertDialog.Title>
 						<AlertDialog.Description
 							class="text-base font-light text-foreground dark:font-normal dark:text-foreground/95"
 						>
-							Thank you for your interest in the PingPong College Study. To inquire about future
-							participation, please contact
+							Thank you for your interest. We are no longer accepting applications. For more
+							information, please contact
 							<a
-								href="mailto:support@pingpong-hks.atlassian.net"
+								href="mailto:pingpongedu@hks.harvard.edu"
 								rel="noopener noreferrer"
 								class="font-medium text-foreground underline underline-offset-4"
 								target="_blank"
 							>
-								support@pingpong-hks.atlassian.net
+								pingpongedu@hks.harvard.edu
 							</a>.
 						</AlertDialog.Description>
 					</AlertDialog.Header>
@@ -204,15 +204,15 @@
 							along with the opportunity to earn bonuses for referring other eligible instructors.
 						</p>
 						<p>
-							<strong> Applications are now closed for Spring 2026 courses. </strong>
-							To inquire about future participation, please contact
+							<strong> The PingPong College Study has concluded. </strong>
+							We are no longer accepting applications. For more information, please contact
 							<a
-								href="mailto:support@pingpong-hks.atlassian.net"
+								href="mailto:pingpongedu@hks.harvard.edu"
 								rel="noopener noreferrer"
 								class="font-medium text-foreground underline underline-offset-4"
 								target="_blank"
 							>
-								support@pingpong-hks.atlassian.net
+								pingpongedu@hks.harvard.edu
 							</a>.
 						</p>
 					</div>
@@ -317,15 +317,15 @@
 								<Card.Title class="text-lg">How can I participate?</Card.Title>
 							</Card.Header>
 							<Card.Content class="text-base font-light text-secondary-foreground">
-								Applications are now closed for Spring 2026 courses. To inquire about future
-								participation, please contact
+								The PingPong College Study has concluded. We are no longer accepting applications.
+								For more information, please contact
 								<a
-									href="mailto:support@pingpong-hks.atlassian.net"
+									href="mailto:pingpongedu@hks.harvard.edu"
 									rel="noopener noreferrer"
 									class="font-medium text-foreground underline underline-offset-4"
 									target="_blank"
 								>
-									support@pingpong-hks.atlassian.net
+									pingpongedu@hks.harvard.edu
 								</a>.
 							</Card.Content>
 						</Card.Root>

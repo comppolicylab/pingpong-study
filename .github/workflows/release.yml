@@ -24,10 +24,10 @@ jobs:
 
       - name: Parse landing version from release tag
         shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           set -euo pipefail
-
-          RELEASE_TAG="${{ github.event.release.tag_name }}"
 
           # Keep the existing release-tag contract and use its web component
           # as the version of the landing image.
@@ -42,27 +42,6 @@ jobs:
 
           echo "LANDING_VERSION=${LANDING_VERSION}" >> "$GITHUB_ENV"
           echo "Landing image version: ${LANDING_VERSION}"
-
-      - name: Validate landing repository configuration
-        shell: bash
-        env:
-          PINGPONG_LANDING_REPO: ${{ vars.PINGPONG_LANDING_REPO }}
-          PINGPONG_LANDING_REGISTRY: ${{ vars.PINGPONG_LANDING_REGISTRY }}
-        run: |
-          set -euo pipefail
-
-          EXPECTED_REPO="pingpong-study-landing"
-          EXPECTED_REGISTRY="654654251079.dkr.ecr.us-east-1.amazonaws.com/pingpong-study-landing"
-
-          if [[ "$PINGPONG_LANDING_REPO" != "$EXPECTED_REPO" ]]; then
-            echo "Error: PINGPONG_LANDING_REPO must be ${EXPECTED_REPO}."
-            exit 1
-          fi
-
-          if [[ "$PINGPONG_LANDING_REGISTRY" != "$EXPECTED_REGISTRY" ]]; then
-            echo "Error: PINGPONG_LANDING_REGISTRY must be ${EXPECTED_REGISTRY}."
-            exit 1
-          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b

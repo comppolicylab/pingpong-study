@@ -8,6 +8,7 @@
 		"vite.config.ts",
 		"src/app.d.ts",
 		"src/landing-routes/**/*.svelte",
+		"src/landing-routes/**/*.ts",
 		"src/lib/components/study-landing.svelte"
 	],
 	"exclude": ["node_modules/**", "src/routes/**"]
