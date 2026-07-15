@@ -137,6 +137,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          aws ecr get-login-password --region "${{ vars.AWS_REGION }}" | \
+            docker login --username AWS --password-stdin "${{ vars.PINGPONG_REGISTRY_ENDPOINT }}"
+
           docker tag \
             "${PINGPONG_LANDING_REGISTRY}:${LANDING_VERSION}" \
             "${PINGPONG_LANDING_REGISTRY}:${ENVIRONMENT}"
