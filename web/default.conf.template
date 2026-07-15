@@ -1,7 +1,7 @@
 ############ study host ############
 server {
-    listen ${NGINX_LISTEN} default_server;
-    listen ${NGINX_LISTEN_SSL} ssl default_server;
+    listen ${NGINX_LISTEN};
+    listen ${NGINX_LISTEN_SSL} ssl;
 
     server_name study.pingpong.hks.harvard.edu;
 
@@ -19,6 +19,12 @@ server {
     root /usr/share/nginx/html/study;
     # Index / fallback page
     index index.html;
+
+    # Preserve inbound links without serving duplicate landing-page content.
+    location = /about {
+        absolute_redirect off;
+        return 308 /$is_args$args;
+    }
 
     location / {
         # Serve real files first, then fallback to index.

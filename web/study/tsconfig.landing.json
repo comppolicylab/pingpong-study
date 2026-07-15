@@ -1,0 +1,15 @@
+{
+	"extends": "./tsconfig.json",
+	"include": [
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/env.d.ts",
+		".svelte-kit/non-ambient.d.ts",
+		".svelte-kit/types/**/$types.d.ts",
+		"vite.config.ts",
+		"src/app.d.ts",
+		"src/landing-routes/**/*.svelte",
+		"src/landing-routes/**/*.ts",
+		"src/lib/components/study-landing.svelte"
+	],
+	"exclude": ["node_modules/**", "src/routes/**"]
+}

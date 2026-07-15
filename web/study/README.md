@@ -37,20 +37,22 @@ The Study Dashboard will be available at `http://localhost:5173` (Vite will pick
 ### Code quality
 
 - `pnpm check` — Runs `svelte-check` with the local `tsconfig.json`
+- `pnpm check:landing` — Checks the landing-only route tree
 - `pnpm lint` — Runs `prettier --check` and `eslint`
 - `pnpm format` — Formats the codebase with Prettier
 
 ## Deployment
 
-This app builds to a static site via `adapter-static`.
+This app has two static build modes:
 
-- Build locally with:
+- `pnpm build` or `pnpm build:full` builds the complete study dashboard from `src/routes`.
+- `pnpm build:landing` builds only `/` and `/about` from `src/landing-routes`.
 
-```
-pnpm build
-```
+Both route trees reuse the landing page in `src/lib/components/study-landing.svelte`. The full
+dashboard supplies its login actions; the landing-only build omits them.
 
-- In containerized environments, the multi-stage `web/Dockerfile` builds both the main PingPong site and the Study Dashboard, and serves them via Nginx. The Study site output is copied to `/usr/share/nginx/html/study`.
+- The multi-stage `web/Dockerfile` publishes the landing-only build. The complete dashboard and backend remain available in source but are not included in that web artifact.
+- The Study site output is copied to `/usr/share/nginx/html/study`.
 - Nginx configuration is templated via `web/default.conf.template`. Runtime `ARG`/`ENV` values are typically set/overridden by `docker-compose` per environment.
 
 If the API runs on a non-default host/port, update the `/api` proxy target in `vite.config.ts` for local development.
