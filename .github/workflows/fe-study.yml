@@ -58,6 +58,10 @@ jobs:
         working-directory: ${{env.wd}}
         run: pnpm check
 
+      - name: Check landing application
+        working-directory: ${{env.wd}}
+        run: pnpm check:landing
+
       - name: Check formatting
         working-directory: ${{env.wd}}
         run: |

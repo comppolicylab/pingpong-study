@@ -1,16 +1,19 @@
-name: Push New Release to AWS
-run-name: "${{ github.event.release.prerelease && 'Staging' || 'Production' }}: Release ${{ github.event.release.tag_name }} on AWS"
+name: Push Landing Release to AWS
+run-name: "Production: Release ${{ github.event.release.tag_name }} landing image to AWS"
+
 permissions:
   contents: read
+
 concurrency: release
 
 on:
   release:
     types: [published]
+
 jobs:
   release:
     if: github.event.release.prerelease == false
-    name: Build and Push/Tag Docker Images for Release
+    name: Build and Push/Tag Landing Image
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -19,79 +22,47 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Parse version tag
+      - name: Parse landing version from release tag
+        shell: bash
         run: |
-          # Get the release tag
+          set -euo pipefail
+
           RELEASE_TAG="${{ github.event.release.tag_name }}"
 
-          # Parse legacy tag format: NNNN-srvNNN-webNNN
+          # Keep the existing release-tag contract and use its web component
+          # as the version of the landing image.
           if [[ $RELEASE_TAG =~ ^([0-9]+)-srv([0-9]+)-web([0-9]+)$ ]]; then
-            BUILD_NUMBER="${BASH_REMATCH[1]}"
-            SRV_VERSION="${BASH_REMATCH[2]}"
-            WEB_VERSION="${BASH_REMATCH[3]}"
-          # Parse new tag format: vNNNN+srvNNN.webNNN
+            LANDING_VERSION="v${BASH_REMATCH[3]}"
           elif [[ $RELEASE_TAG =~ ^v([0-9]+)\+srv([0-9]+)\.web([0-9]+)$ ]]; then
-            BUILD_NUMBER="${BASH_REMATCH[1]}"
-            SRV_VERSION="${BASH_REMATCH[2]}"
-            WEB_VERSION="${BASH_REMATCH[3]}"
+            LANDING_VERSION="v${BASH_REMATCH[3]}"
           else
             echo "Error: Invalid tag format. Expected NNNN-srvNNN-webNNN or vNNNN+srvNNN.webNNN"
             exit 1
           fi
 
-          # Set GitHub environment variables
-          echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $GITHUB_ENV
-          echo "SRV_VERSION=v${SRV_VERSION}" >> $GITHUB_ENV
-          echo "WEB_VERSION=v${WEB_VERSION}" >> $GITHUB_ENV
-        shell: bash
+          echo "LANDING_VERSION=${LANDING_VERSION}" >> "$GITHUB_ENV"
+          echo "Landing image version: ${LANDING_VERSION}"
 
-      - name: Extract release version
+      - name: Validate landing repository configuration
         shell: bash
+        env:
+          PINGPONG_LANDING_REPO: ${{ vars.PINGPONG_LANDING_REPO }}
+          PINGPONG_LANDING_REGISTRY: ${{ vars.PINGPONG_LANDING_REGISTRY }}
         run: |
-          RELEASE_NAME="${{ github.event.release.name }}"
-          if [[ -z "$RELEASE_NAME" ]]; then
-            echo "Error: release.name is empty"
+          set -euo pipefail
+
+          EXPECTED_REPO="pingpong-study-landing"
+          EXPECTED_REGISTRY="654654251079.dkr.ecr.us-east-1.amazonaws.com/pingpong-study-landing"
+
+          if [[ "$PINGPONG_LANDING_REPO" != "$EXPECTED_REPO" ]]; then
+            echo "Error: PINGPONG_LANDING_REPO must be ${EXPECTED_REPO}."
             exit 1
           fi
 
-          if [[ ! "$RELEASE_NAME" =~ ^v ]]; then
-            echo "Error: release.name must start with 'v'. Found: $RELEASE_NAME"
+          if [[ "$PINGPONG_LANDING_REGISTRY" != "$EXPECTED_REGISTRY" ]]; then
+            echo "Error: PINGPONG_LANDING_REGISTRY must be ${EXPECTED_REGISTRY}."
             exit 1
           fi
-
-          if [[ ! "$RELEASE_NAME" =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
-            echo "Error: release.name must follow v<major>.<minor>[.<patch>][-<prerelease>]"
-            echo "Found: $RELEASE_NAME"
-            exit 1
-          fi
-
-          echo "VERSION_STRIPPED=${RELEASE_NAME#v}" >> $GITHUB_ENV
-
-      - name: Compute RELEASE_VERSION
-        shell: bash
-        run: |
-          RELEASE_TAG="${{ github.event.release.tag_name }}"
-          VERSION_STRIPPED="${VERSION_STRIPPED:-}"
-          BUILD_NUMBER="${BUILD_NUMBER:-}"
-
-          if [[ -z "$RELEASE_TAG" ]]; then
-            echo "Error: release.tag_name is empty"
-            exit 1
-          fi
-
-          if [[ -z "$BUILD_NUMBER" ]]; then
-            echo "Error: BUILD_NUMBER is empty; release tag parsing failed"
-            exit 1
-          fi
-
-          if [[ ! "$BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
-            echo "Error: Invalid build number. Expected numeric build number. Found: $BUILD_NUMBER"
-            exit 1
-          fi
-
-          RELEASE_VERSION="pingpong@${VERSION_STRIPPED}+${BUILD_NUMBER}"
-          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
-          echo "Computed RELEASE_VERSION=$RELEASE_VERSION"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b
@@ -104,118 +75,94 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@d539f0932e70871a027e9d5a9d8fc38589180a64
 
-      - name: Check if Server image exists
+      - name: Check if landing image exists
+        shell: bash
         env:
-          ENVIRONMENT: ${{ github.event.release.prerelease && 'stage' || 'prod' }}
+          ENVIRONMENT: prod
+          PINGPONG_LANDING_REPO: ${{ vars.PINGPONG_LANDING_REPO }}
         run: |
+          set -euo pipefail
+
           REGISTRY_ID="${{ vars.PINGPONG_REGISTRY_ENDPOINT }}"
           REGISTRY_ID=${REGISTRY_ID%%.*}
-          echo "REGISTRY_ID=$REGISTRY_ID" >> $GITHUB_ENV
+          echo "REGISTRY_ID=${REGISTRY_ID}" >> "$GITHUB_ENV"
 
-          # Check if the image with SRV_VERSION tag exists
-          if aws ecr describe-images --repository-name ${{ vars.PINGPONG_SRV_REPO }} --registry-id $REGISTRY_ID --image-ids imageTag=${{ env.SRV_VERSION }} >/dev/null 2>&1; then
-            if grep -q ${{ env.ENVIRONMENT }} <<< $(aws ecr describe-images --repository-name ${{ vars.PINGPONG_SRV_REPO }} --registry-id $REGISTRY_ID --image-ids imageTag=${{ env.SRV_VERSION }}); then
-              echo "SRV_IMAGE_STATUS=EXISTS_WITH_ENV_TAG" >> $GITHUB_ENV
-              echo "Server Image with tag ${{ env.SRV_VERSION }} exists and has the ${{ env.ENVIRONMENT }} tag in the ECR repository."
+          if aws ecr describe-images \
+            --repository-name "$PINGPONG_LANDING_REPO" \
+            --registry-id "$REGISTRY_ID" \
+            --image-ids "imageTag=${LANDING_VERSION}" >/dev/null 2>&1; then
+            IMAGE_TAGS=$(aws ecr describe-images \
+              --repository-name "$PINGPONG_LANDING_REPO" \
+              --registry-id "$REGISTRY_ID" \
+              --image-ids "imageTag=${LANDING_VERSION}" \
+              --query 'imageDetails[0].imageTags' \
+              --output text)
+
+            if tr '\t' '\n' <<< "$IMAGE_TAGS" | grep -qx "$ENVIRONMENT"; then
+              echo "LANDING_IMAGE_STATUS=EXISTS_WITH_ENV_TAG" >> "$GITHUB_ENV"
+              echo "Landing image ${LANDING_VERSION} already has the ${ENVIRONMENT} tag."
             else
-              echo "SRV_IMAGE_STATUS=EXISTS_WITHOUT_ENV_TAG" >> $GITHUB_ENV
-              echo "Server Image with tag ${{ env.SRV_VERSION }} exists but does not have the ${{ env.ENVIRONMENT }} tag in the ECR repository."
+              echo "LANDING_IMAGE_STATUS=EXISTS_WITHOUT_ENV_TAG" >> "$GITHUB_ENV"
+              echo "Landing image ${LANDING_VERSION} exists without the ${ENVIRONMENT} tag."
             fi
           else
-            echo "SRV_IMAGE_STATUS=DOES_NOT_EXIST" >> $GITHUB_ENV
-            echo "Server Image with tag ${{ env.SRV_VERSION }} does not exist in the ECR repository."
-          fi
-        shell: bash
-
-      - name: Tag server image for release
-        env:
-          ENVIRONMENT: ${{ github.event.release.prerelease && 'stage' || 'prod' }}
-        if: ${{ env.SRV_IMAGE_STATUS == 'EXISTS_WITHOUT_ENV_TAG' }}
-        run: |
-          MANIFEST=$(aws ecr batch-get-image --repository-name ${{ vars.PINGPONG_SRV_REPO }} --registry-id ${{ env.REGISTRY_ID }} --image-ids imageTag=${{ env.SRV_VERSION }} --output text --query 'images[].imageManifest')
-          aws ecr put-image --repository-name ${{ vars.PINGPONG_SRV_REPO }} --registry-id ${{ env.REGISTRY_ID }} --image-tag ${{env.ENVIRONMENT}} --image-manifest "$MANIFEST"
-          echo "Tagged existing Server Image (${{ env.SRV_VERSION }}) with ${{ env.ENVIRONMENT }} tag"
-
-      - name: Build server image for release
-        env:
-          ENVIRONMENT: ${{ github.event.release.prerelease && 'stage' || 'prod' }}
-          SRV_VERSION: ${{ env.SRV_VERSION }}
-          PINGPONG_SRV_REGISTRY: ${{ vars.PINGPONG_SRV_REGISTRY }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-        if: ${{ env.SRV_IMAGE_STATUS == 'DOES_NOT_EXIST' }}
-        run: |
-          echo "Building Server Image with tag ${{ env.SRV_VERSION }}"
-          docker compose -p pingpong -f docker-compose.yml -f docker-compose.prod.yml build \
-            --build-arg SENTRY_RELEASE=${{ env.RELEASE_VERSION }} \
-            study-srv
-
-      - name: Push server image for release
-        env:
-          ENVIRONMENT: ${{ github.event.release.prerelease && 'stage' || 'prod' }}
-        if: ${{ env.SRV_IMAGE_STATUS == 'DOES_NOT_EXIST' }}
-        run: |
-          aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ vars.PINGPONG_REGISTRY_ENDPOINT }}
-          docker tag ${{ vars.PINGPONG_SRV_REGISTRY }}:${{ env.SRV_VERSION }} ${{ vars.PINGPONG_SRV_REGISTRY }}:${{ env.ENVIRONMENT }}
-          docker push ${{ vars.PINGPONG_SRV_REGISTRY }}:${{ env.SRV_VERSION }}
-          docker push ${{ vars.PINGPONG_SRV_REGISTRY }}:${{ env.ENVIRONMENT }}
-          echo "Built and pushed Server Image (${{ env.SRV_VERSION }}) with ${{ env.ENVIRONMENT }} tag"
-
-      - name: Check if Web image exists
-        env:
-          ENVIRONMENT: ${{ github.event.release.prerelease && 'stage' || 'prod' }}
-        run: |
-          # Check if the image with WEB_VERSION tag exists
-          if aws ecr describe-images --repository-name ${{ vars.PINGPONG_WEB_REPO }} --registry-id ${{ env.REGISTRY_ID }} --image-ids imageTag=${{ env.WEB_VERSION }} >/dev/null 2>&1; then
-            if grep -q ${{ env.ENVIRONMENT }} <<< $(aws ecr describe-images --repository-name ${{ vars.PINGPONG_WEB_REPO }} --registry-id $REGISTRY_ID --image-ids imageTag=${{ env.WEB_VERSION }}); then
-              echo "WEB_IMAGE_STATUS=EXISTS_WITH_ENV_TAG" >> $GITHUB_ENV
-              echo "Web Image with tag ${{ env.WEB_VERSION }} exists and has the ${{ env.ENVIRONMENT }} tag in the ECR repository."
-            else
-              echo "WEB_IMAGE_STATUS=EXISTS_WITHOUT_ENV_TAG" >> $GITHUB_ENV
-              echo "Web Image with tag ${{ env.WEB_VERSION }} exists but does not have the ${{ env.ENVIRONMENT }} tag in the ECR repository."
-            fi
-          else
-            echo "WEB_IMAGE_STATUS=DOES_NOT_EXIST" >> $GITHUB_ENV
-            echo "Web Image with tag ${{ env.WEB_VERSION }} does not exist in the ECR repository."
+            echo "LANDING_IMAGE_STATUS=DOES_NOT_EXIST" >> "$GITHUB_ENV"
+            echo "Landing image ${LANDING_VERSION} does not exist."
           fi
 
+      - name: Tag existing landing image for release
+        if: ${{ env.LANDING_IMAGE_STATUS == 'EXISTS_WITHOUT_ENV_TAG' }}
         shell: bash
-
-      - name: Tag web image for release
         env:
-          ENVIRONMENT: ${{ github.event.release.prerelease && 'stage' || 'prod' }}
-        if: ${{ env.WEB_IMAGE_STATUS  == 'EXISTS_WITHOUT_ENV_TAG' }}
+          ENVIRONMENT: prod
+          PINGPONG_LANDING_REPO: ${{ vars.PINGPONG_LANDING_REPO }}
         run: |
-          MANIFEST=$(aws ecr batch-get-image --repository-name ${{ vars.PINGPONG_WEB_REPO }} --registry-id ${{ env.REGISTRY_ID }} --image-ids imageTag=${{ env.WEB_VERSION }} --output text --query 'images[].imageManifest')
-          aws ecr put-image --repository-name ${{ vars.PINGPONG_WEB_REPO }} --registry-id ${{ env.REGISTRY_ID }} --image-tag ${{env.ENVIRONMENT}} --image-manifest "$MANIFEST"
-          echo "Tagged existing Web Image (${{ env.WEB_VERSION }}) with ${{ env.ENVIRONMENT }} tag"
+          set -euo pipefail
 
-      - name: Build web image for release
+          MANIFEST=$(aws ecr batch-get-image \
+            --repository-name "$PINGPONG_LANDING_REPO" \
+            --registry-id "$REGISTRY_ID" \
+            --image-ids "imageTag=${LANDING_VERSION}" \
+            --output text \
+            --query 'images[].imageManifest')
+
+          aws ecr put-image \
+            --repository-name "$PINGPONG_LANDING_REPO" \
+            --registry-id "$REGISTRY_ID" \
+            --image-tag "$ENVIRONMENT" \
+            --image-manifest "$MANIFEST"
+
+          echo "Tagged landing image ${LANDING_VERSION} with ${ENVIRONMENT}."
+
+      - name: Build landing image for release
+        if: ${{ env.LANDING_IMAGE_STATUS == 'DOES_NOT_EXIST' }}
+        shell: bash
         env:
-          ENVIRONMENT: ${{ github.event.release.prerelease && 'stage' || 'prod' }}
-          WEB_VERSION: ${{ env.WEB_VERSION }}
-          PINGPONG_WEB_REGISTRY: ${{ vars.PINGPONG_WEB_REGISTRY }}
-        if: ${{ env.WEB_IMAGE_STATUS == 'DOES_NOT_EXIST' }}
+          PINGPONG_LANDING_REGISTRY: ${{ vars.PINGPONG_LANDING_REGISTRY }}
         run: |
-          echo "Building Web Image with tag ${{ env.WEB_VERSION }}"
-          docker compose -p pingpong -f docker-compose.yml -f docker-compose.prod.yml build study-web
+          set -euo pipefail
 
-      - name: Push web image for release
+          echo "Building landing image ${LANDING_VERSION}."
+          docker build \
+            --platform linux/amd64 \
+            --file web/Dockerfile \
+            --tag "${PINGPONG_LANDING_REGISTRY}:${LANDING_VERSION}" \
+            web
+
+      - name: Push landing image for release
+        if: ${{ env.LANDING_IMAGE_STATUS == 'DOES_NOT_EXIST' }}
+        shell: bash
         env:
-          ENVIRONMENT: ${{ github.event.release.prerelease && 'stage' || 'prod' }}
-        if: ${{ env.WEB_IMAGE_STATUS == 'DOES_NOT_EXIST' }}
+          ENVIRONMENT: prod
+          PINGPONG_LANDING_REGISTRY: ${{ vars.PINGPONG_LANDING_REGISTRY }}
         run: |
-          aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ vars.PINGPONG_REGISTRY_ENDPOINT }}
-          docker tag ${{ vars.PINGPONG_WEB_REGISTRY }}:${{ env.WEB_VERSION }} ${{ vars.PINGPONG_WEB_REGISTRY }}:${{ env.ENVIRONMENT }}
-          docker push ${{ vars.PINGPONG_WEB_REGISTRY }}:${{ env.WEB_VERSION }}
-          docker push ${{ vars.PINGPONG_WEB_REGISTRY }}:${{ env.ENVIRONMENT }}
-          echo "Built and pushed Web Image (${{ env.WEB_VERSION }}) with ${{ env.ENVIRONMENT }} tag"
+          set -euo pipefail
 
-      - name: Create Sentry release
-        uses: getsentry/action-release@v3
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_PROD }}
-        with:
-          environment: ${{ github.event.release.prerelease && 'staging' || 'production' }}
-          version: ${{ env.RELEASE_VERSION }}
+          docker tag \
+            "${PINGPONG_LANDING_REGISTRY}:${LANDING_VERSION}" \
+            "${PINGPONG_LANDING_REGISTRY}:${ENVIRONMENT}"
+
+          docker push "${PINGPONG_LANDING_REGISTRY}:${LANDING_VERSION}"
+          docker push "${PINGPONG_LANDING_REGISTRY}:${ENVIRONMENT}"
+
+          echo "Built and pushed landing image ${LANDING_VERSION} with ${ENVIRONMENT}."

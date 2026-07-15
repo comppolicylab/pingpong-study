@@ -1,7 +1,7 @@
 ############ study host ############
 server {
-    listen ${NGINX_LISTEN} default_server;
-    listen ${NGINX_LISTEN_SSL} ssl default_server;
+    listen ${NGINX_LISTEN};
+    listen ${NGINX_LISTEN_SSL} ssl;
 
     server_name study.pingpong.hks.harvard.edu;
 

@@ -11,7 +11,8 @@ RUN pnpm install --frozen-lockfile
 COPY study/src ./src
 COPY study/static ./static
 COPY study/components.json study/eslint.config.js study/svelte.config.js study/tsconfig.json study/vite.config.ts ./
-RUN pnpm build
+RUN pnpm build:landing \
+    && rm build/notice.grace.v1.webp build/notice.profile_moved.v1.webp
 
 ########## Final Nginx image ##########
 FROM nginx:1.31.2
