@@ -1,5 +1,5 @@
 ########## Build study ##########
-FROM node:22.23.0-alpine3.24 AS build_study
+FROM node:22.23.1-alpine3.24 AS build_study
 
 RUN npm install -g pnpm@10
 
@@ -15,7 +15,7 @@ RUN pnpm build:landing \
     && rm -f build/notice.grace.v1.webp build/notice.profile_moved.v1.webp
 
 ########## Final Nginx image ##########
-FROM nginx:1.31.2
+FROM nginx:1.31.3
 
 RUN apt-get update && apt-get install ca-certificates -y && update-ca-certificates
 
