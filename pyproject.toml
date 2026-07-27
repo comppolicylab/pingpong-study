@@ -29,11 +29,11 @@ dependencies = [
 [dependency-groups]
 dev = [
     "deptry~=0.25.1",
-    "pre-commit~=4.6.0",
+    "pre-commit~=4.6.1",
 ]
 
 local-scripts-qualtrics = [
-    "selenium~=4.45.0",
+    "selenium~=4.46.0",
 ]
 
 [tool.deptry]
