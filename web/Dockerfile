@@ -1,5 +1,5 @@
 ########## Build study ##########
-FROM node:22.23.1-alpine3.24 AS build_study
+FROM node:22.23.2-alpine3.24 AS build_study
 
 RUN npm install -g pnpm@10
 
