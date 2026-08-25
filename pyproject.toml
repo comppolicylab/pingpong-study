@@ -19,11 +19,11 @@ dependencies = [
     "opentelemetry-sdk~=1.44.0",
     "pyairtable~=3.4.2",
     "pydantic~=2.13.4",
-    "pydantic-settings~=2.14.2",
+    "pydantic-settings~=2.15.0",
     "pyjwt~=2.13.0",
     "requests~=2.34.2",
-    "sentry-sdk~=2.66.1",
-    "uvicorn~=0.52.1",
+    "sentry-sdk~=2.68.0",
+    "uvicorn~=0.52.3",
 ]
 
 [dependency-groups]
