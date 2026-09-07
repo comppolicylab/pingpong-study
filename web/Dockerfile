@@ -15,7 +15,7 @@ RUN pnpm build:landing \
     && rm -f build/notice.grace.v1.webp build/notice.profile_moved.v1.webp
 
 ########## Final Nginx image ##########
-FROM nginx:1.31.4
+FROM nginx:1.31.5
 
 RUN apt-get update && apt-get install ca-certificates -y && update-ca-certificates
 
