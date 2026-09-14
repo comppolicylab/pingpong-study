@@ -33,7 +33,7 @@ dev = [
 ]
 
 local-scripts-qualtrics = [
-    "selenium~=4.47.0",
+    "selenium>=4.47,<4.50",
 ]
 
 [tool.deptry]
