@@ -13,17 +13,17 @@ dependencies = [
     "aiosmtplib~=5.1.2",
     "arrow ~= 1.4.0",
     "azure-communication-email ~= 1.1.0",
-    "click~=8.4.2",
+    "click>=8.4.2,<8.6.0",
     "dotenv ~= 0.9.9",
     "fastapi[standard]~=0.141.1",
     "opentelemetry-sdk~=1.44.0",
     "pyairtable~=3.4.2",
     "pydantic~=2.13.4",
     "pydantic-settings~=2.15.0",
-    "pyjwt~=2.13.0",
+    "pyjwt>=2.13,<2.15",
     "requests~=2.34.2",
-    "sentry-sdk~=2.68.0",
-    "uvicorn~=0.52.3",
+    "sentry-sdk>=2.68,<2.70",
+    "uvicorn>=0.52.3,<0.54.0",
 ]
 
 [dependency-groups]
